@@ -9,7 +9,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/**/*.test.ts",
-    "supabase:types": "supabase gen types typescript --local > lib/supabase/types.ts"
+    "supabase:types": "supabase gen types typescript --linked --schema public > lib/supabase/types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",
