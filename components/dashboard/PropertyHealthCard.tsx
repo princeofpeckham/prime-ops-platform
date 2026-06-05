@@ -23,7 +23,9 @@ function Stat({ label, value, alert }: { label: string; value: number; alert?: b
 }
 
 export function PropertyHealthCard({ health }: { health: PropertyHealth }) {
-  const { property } = health;
+  const { property, damageFlags } = health;
+  const unresolvedDamage = damageFlags.filter((d) => !d.vendorJobId);
+
   return (
     <article className="flex flex-col gap-3 rounded-lg border border-neutral-200 bg-white p-4">
       <header className="flex items-start justify-between gap-2">
@@ -45,6 +47,40 @@ export function PropertyHealthCard({ health }: { health: PropertyHealth }) {
           alert={health.unassignedShifts14d > 0}
         />
       </div>
+
+      {/* Damage flags section */}
+      {damageFlags.length > 0 && (
+        <div className="border-t border-neutral-100 pt-2">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">
+              Damage flags
+            </span>
+            {unresolvedDamage.length > 0 && (
+              <Badge tone="alert">{unresolvedDamage.length} unresolved</Badge>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            {damageFlags.slice(0, 3).map((flag) => (
+              <div
+                key={flag.id}
+                className="flex items-center justify-between rounded border border-neutral-100 px-2 py-1"
+              >
+                <span className="text-[11px] text-neutral-700">{flag.areaName}</span>
+                {flag.vendorJobId ? (
+                  <Badge tone="warn">{flag.vendorName ?? flag.vendorJobStatus ?? "Assigned"}</Badge>
+                ) : (
+                  <Badge tone="alert">Needs vendor</Badge>
+                )}
+              </div>
+            ))}
+            {damageFlags.length > 3 && (
+              <span className="text-[10px] text-neutral-400">
+                +{damageFlags.length - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </article>
   );
 }

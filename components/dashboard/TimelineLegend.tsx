@@ -1,32 +1,29 @@
-function Swatch({
-  className,
-  label
-}: {
-  className: string;
-  label: string;
-}) {
-  return (
-    <span className="inline-flex items-center gap-1.5 text-xs text-neutral-600">
-      <span className={`inline-block h-3 w-4 rounded-sm border ${className}`} />
-      {label}
-    </span>
-  );
-}
-
 export function TimelineLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-600">
-      <Swatch className="bg-emerald-100 border-emerald-300" label="Check-in" />
-      <Swatch className="bg-neutral-200 border-neutral-300" label="Occupied" />
-      <Swatch className="bg-amber-100 border-amber-300" label="Check-out" />
-      <Swatch className="bg-purple-100 border-purple-300" label="Same-day turnover" />
-      <span className="inline-flex items-center gap-1.5">
-        <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
-        Unassigned shift
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-neutral-500">
+      <span className="inline-flex items-center gap-1">
+        <span className="inline-block h-3 w-5 rounded-full bg-emerald-500" />
+        CI
       </span>
-      <span className="inline-flex items-center gap-1.5">
-        <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
-        Unconfirmed clean
+      <span className="inline-flex items-center gap-1">
+        <span className="inline-block h-3 w-5 rounded-full bg-amber-500" />
+        CO
+      </span>
+      <span className="inline-flex items-center gap-1">
+        <span className="inline-block h-3 w-5 rounded-full bg-purple-500" />
+        CI/CO
+      </span>
+      <span className="inline-flex items-center gap-1">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-red-500" />
+        BH gap
+      </span>
+      <span className="inline-flex items-center gap-1">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
+        Clean gap
+      </span>
+      <span className="inline-flex items-center gap-1">
+        <svg width="8" height="8" viewBox="0 0 16 16" fill="currentColor" className="text-red-500"><path d="M8 1a1 1 0 0 1 .894.553l6 12A1 1 0 0 1 14 15H2a1 1 0 0 1-.894-1.447l6-12A1 1 0 0 1 8 1z"/></svg>
+        Damage
       </span>
     </div>
   );

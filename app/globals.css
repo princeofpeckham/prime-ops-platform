@@ -10,3 +10,12 @@ html, body {
   background-color: #fafaf7;
   color: #0b0b0b;
 }
+
+@keyframes slide-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.2s ease-out;
+}
