@@ -29,6 +29,7 @@ export type Database = {
           created_at: string
           external_id: string
           id: string
+          org_id: string
           property_id: string
           special_instructions: string | null
           status: Database["public"]["Enums"]["booking_status"]
@@ -46,6 +47,7 @@ export type Database = {
           created_at?: string
           external_id: string
           id?: string
+          org_id: string
           property_id: string
           special_instructions?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
@@ -63,6 +65,7 @@ export type Database = {
           created_at?: string
           external_id?: string
           id?: string
+          org_id?: string
           property_id?: string
           special_instructions?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
@@ -70,6 +73,13 @@ export type Database = {
           ttv_pence?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "bookings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bookings_property_id_fkey"
             columns: ["property_id"]
@@ -90,6 +100,7 @@ export type Database = {
           date: string
           id: string
           notes: string | null
+          org_id: string
           property_id: string
           rate_pence: number
           sms_sent_at: string | null
@@ -107,6 +118,7 @@ export type Database = {
           date: string
           id?: string
           notes?: string | null
+          org_id: string
           property_id: string
           rate_pence?: number
           sms_sent_at?: string | null
@@ -124,6 +136,7 @@ export type Database = {
           date?: string
           id?: string
           notes?: string | null
+          org_id?: string
           property_id?: string
           rate_pence?: number
           sms_sent_at?: string | null
@@ -137,6 +150,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cleaning_jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -154,6 +174,7 @@ export type Database = {
           condition: Database["public"]["Enums"]["condition_area_state"]
           id: string
           notes: string | null
+          org_id: string
           photos: string[]
           report_id: string
         }
@@ -162,6 +183,7 @@ export type Database = {
           condition: Database["public"]["Enums"]["condition_area_state"]
           id?: string
           notes?: string | null
+          org_id: string
           photos?: string[]
           report_id: string
         }
@@ -170,10 +192,18 @@ export type Database = {
           condition?: Database["public"]["Enums"]["condition_area_state"]
           id?: string
           notes?: string | null
+          org_id?: string
           photos?: string[]
           report_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "condition_report_areas_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "condition_report_areas_report_id_fkey"
             columns: ["report_id"]
@@ -189,6 +219,7 @@ export type Database = {
           created_at: string
           has_damage_flags: boolean
           id: string
+          org_id: string
           overall_condition:
             | Database["public"]["Enums"]["condition_overall"]
             | null
@@ -206,6 +237,7 @@ export type Database = {
           created_at?: string
           has_damage_flags?: boolean
           id?: string
+          org_id: string
           overall_condition?:
             | Database["public"]["Enums"]["condition_overall"]
             | null
@@ -223,6 +255,7 @@ export type Database = {
           created_at?: string
           has_damage_flags?: boolean
           id?: string
+          org_id?: string
           overall_condition?:
             | Database["public"]["Enums"]["condition_overall"]
             | null
@@ -241,6 +274,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "condition_reports_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -265,6 +305,7 @@ export type Database = {
           deduction_amount_pence: number | null
           deduction_reason: string | null
           id: string
+          org_id: string
           processed_at: string | null
           property_id: string
           status: Database["public"]["Enums"]["deposit_status"]
@@ -281,6 +322,7 @@ export type Database = {
           deduction_amount_pence?: number | null
           deduction_reason?: string | null
           id?: string
+          org_id: string
           processed_at?: string | null
           property_id: string
           status?: Database["public"]["Enums"]["deposit_status"]
@@ -297,6 +339,7 @@ export type Database = {
           deduction_amount_pence?: number | null
           deduction_reason?: string | null
           id?: string
+          org_id?: string
           processed_at?: string | null
           property_id?: string
           status?: Database["public"]["Enums"]["deposit_status"]
@@ -324,10 +367,49 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "deposits_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "deposits_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memberships: {
+        Row: {
+          created_at: string
+          id: string
+          org_id: string
+          role: Database["public"]["Enums"]["member_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          org_id: string
+          role: Database["public"]["Enums"]["member_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -338,6 +420,7 @@ export type Database = {
           channel: Database["public"]["Enums"]["notification_channel"]
           created_at: string
           id: string
+          org_id: string
           recipient_address: string
           recipient_id: string | null
           related_id: string | null
@@ -351,6 +434,7 @@ export type Database = {
           channel: Database["public"]["Enums"]["notification_channel"]
           created_at?: string
           id?: string
+          org_id: string
           recipient_address: string
           recipient_id?: string | null
           related_id?: string | null
@@ -364,6 +448,7 @@ export type Database = {
           channel?: Database["public"]["Enums"]["notification_channel"]
           created_at?: string
           id?: string
+          org_id?: string
           recipient_address?: string
           recipient_id?: string | null
           related_id?: string | null
@@ -371,6 +456,38 @@ export type Database = {
           sent_at?: string | null
           status?: Database["public"]["Enums"]["notification_status"]
           template?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -382,6 +499,7 @@ export type Database = {
           id: string
           keynest_instructions: string | null
           name: string
+          org_id: string
           postcode: string | null
           status: Database["public"]["Enums"]["property_status"]
           tier: Database["public"]["Enums"]["property_tier"]
@@ -394,6 +512,7 @@ export type Database = {
           id?: string
           keynest_instructions?: string | null
           name: string
+          org_id: string
           postcode?: string | null
           status?: Database["public"]["Enums"]["property_status"]
           tier: Database["public"]["Enums"]["property_tier"]
@@ -406,12 +525,21 @@ export type Database = {
           id?: string
           keynest_instructions?: string | null
           name?: string
+          org_id?: string
           postcode?: string | null
           status?: Database["public"]["Enums"]["property_status"]
           tier?: Database["public"]["Enums"]["property_tier"]
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "properties_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shift_applications: {
         Row: {
@@ -419,6 +547,7 @@ export type Database = {
           bh_id: string
           decided_at: string | null
           id: string
+          org_id: string
           shift_id: string
           status: Database["public"]["Enums"]["shift_application_status"]
         }
@@ -427,6 +556,7 @@ export type Database = {
           bh_id: string
           decided_at?: string | null
           id?: string
+          org_id: string
           shift_id: string
           status?: Database["public"]["Enums"]["shift_application_status"]
         }
@@ -435,10 +565,18 @@ export type Database = {
           bh_id?: string
           decided_at?: string | null
           id?: string
+          org_id?: string
           shift_id?: string
           status?: Database["public"]["Enums"]["shift_application_status"]
         }
         Relationships: [
+          {
+            foreignKeyName: "shift_applications_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shift_applications_shift_id_fkey"
             columns: ["shift_id"]
@@ -459,6 +597,7 @@ export type Database = {
           id: string
           is_escalated: boolean
           notes: string | null
+          org_id: string
           property_id: string
           rate_pence: number
           start_time: string
@@ -476,6 +615,7 @@ export type Database = {
           id?: string
           is_escalated?: boolean
           notes?: string | null
+          org_id: string
           property_id: string
           rate_pence: number
           start_time: string
@@ -493,6 +633,7 @@ export type Database = {
           id?: string
           is_escalated?: boolean
           notes?: string | null
+          org_id?: string
           property_id?: string
           rate_pence?: number
           start_time?: string
@@ -506,6 +647,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -528,6 +676,7 @@ export type Database = {
           due_date: string | null
           id: string
           last_chased_at: string | null
+          org_id: string
           photos: string[]
           property_id: string
           quote_amount_pence: number | null
@@ -547,6 +696,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           last_chased_at?: string | null
+          org_id: string
           photos?: string[]
           property_id: string
           quote_amount_pence?: number | null
@@ -566,6 +716,7 @@ export type Database = {
           due_date?: string | null
           id?: string
           last_chased_at?: string | null
+          org_id?: string
           photos?: string[]
           property_id?: string
           quote_amount_pence?: number | null
@@ -581,6 +732,13 @@ export type Database = {
             columns: ["condition_report_id"]
             isOneToOne: false
             referencedRelation: "condition_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {
@@ -612,6 +770,7 @@ export type Database = {
           is_approved: boolean
           name: string
           notes: string | null
+          org_id: string
           quality_rating: number | null
           total_jobs: number
           total_spend_pence: number
@@ -629,6 +788,7 @@ export type Database = {
           is_approved?: boolean
           name: string
           notes?: string | null
+          org_id: string
           quality_rating?: number | null
           total_jobs?: number
           total_spend_pence?: number
@@ -646,18 +806,35 @@ export type Database = {
           is_approved?: boolean
           name?: string
           notes?: string | null
+          org_id?: string
           quality_rating?: number | null
           total_jobs?: number
           total_spend_pence?: number
           trade?: Database["public"]["Enums"]["trade_type"]
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vendors_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      auth_has_role: {
+        Args: {
+          p_org: string
+          p_role: Database["public"]["Enums"]["member_role"]
+        }
+        Returns: boolean
+      }
+      auth_org_ids: { Args: never; Returns: string[] }
       is_brandhost: { Args: never; Returns: boolean }
       is_cleaner: { Args: never; Returns: boolean }
       is_ops: { Args: never; Returns: boolean }
@@ -682,6 +859,7 @@ export type Database = {
         | "approved"
         | "processed"
         | "auto_refunded"
+      member_role: "ops" | "brandhost" | "cleaner"
       notification_channel: "sms" | "email" | "slack"
       notification_status: "sent" | "delivered" | "failed"
       property_status: "active" | "fit_out" | "archived"
@@ -857,6 +1035,7 @@ export const Constants = {
         "processed",
         "auto_refunded",
       ],
+      member_role: ["ops", "brandhost", "cleaner"],
       notification_channel: ["sms", "email", "slack"],
       notification_status: ["sent", "delivered", "failed"],
       property_status: ["active", "fit_out", "archived"],

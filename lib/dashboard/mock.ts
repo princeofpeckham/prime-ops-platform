@@ -442,9 +442,13 @@ function buildCell(
   };
 }
 
+// Deterministic Appear Here org id, matches supabase/migrations/20260605120001.
+const MOCK_ORG_ID = "a0000000-0000-4000-8000-000000000001";
+
 function buildProperty(p: typeof MOCK_PROPERTIES[number]): Property {
   return {
     id: p.id,
+    org_id: MOCK_ORG_ID,
     name: p.name,
     address: p.address,
     postcode: p.postcode,
