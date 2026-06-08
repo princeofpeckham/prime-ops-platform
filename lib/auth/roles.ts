@@ -72,7 +72,7 @@ export type RouteDecision =
   | { kind: "redirect"; to: string };
 
 const PUBLIC_PATHS = new Set<string>(["/login"]);
-const PUBLIC_PREFIXES = ["/api/webhooks", "/_next", "/favicon"];
+const PUBLIC_PREFIXES = ["/api/webhooks", "/api/cron", "/_next", "/favicon"];
 
 function isPublic(pathname: string): boolean {
   if (PUBLIC_PATHS.has(pathname)) return true;
