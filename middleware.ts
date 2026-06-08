@@ -1,4 +1,4 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 import { decideRoute, extractRole } from "@/lib/auth/roles";
@@ -23,18 +23,13 @@ export async function middleware(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value;
+        getAll() {
+          return req.cookies.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          req.cookies.set({ name, value, ...options });
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
           res = NextResponse.next({ request: { headers: req.headers } });
-          res.cookies.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          req.cookies.set({ name, value: "", ...options });
-          res = NextResponse.next({ request: { headers: req.headers } });
-          res.cookies.set({ name, value: "", ...options });
+          cookiesToSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
         }
       }
     }

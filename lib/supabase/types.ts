@@ -382,6 +382,142 @@ export type Database = {
           },
         ]
       }
+      enquiries: {
+        Row: {
+          booking_id: string | null
+          brand_or_tenant_name: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          needs_review: boolean
+          next_action: string | null
+          org_id: string
+          owner_id: string | null
+          property_id: string | null
+          requested_area: string | null
+          requested_end_date: string | null
+          requested_start_date: string | null
+          source: Database["public"]["Enums"]["enquiry_source"]
+          stage: Database["public"]["Enums"]["enquiry_stage"]
+          stage_changed_at: string
+          summary: string | null
+          updated_at: string
+          value_pence: number | null
+        }
+        Insert: {
+          booking_id?: string | null
+          brand_or_tenant_name: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          needs_review?: boolean
+          next_action?: string | null
+          org_id: string
+          owner_id?: string | null
+          property_id?: string | null
+          requested_area?: string | null
+          requested_end_date?: string | null
+          requested_start_date?: string | null
+          source?: Database["public"]["Enums"]["enquiry_source"]
+          stage?: Database["public"]["Enums"]["enquiry_stage"]
+          stage_changed_at?: string
+          summary?: string | null
+          updated_at?: string
+          value_pence?: number | null
+        }
+        Update: {
+          booking_id?: string | null
+          brand_or_tenant_name?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          needs_review?: boolean
+          next_action?: string | null
+          org_id?: string
+          owner_id?: string | null
+          property_id?: string | null
+          requested_area?: string | null
+          requested_end_date?: string | null
+          requested_start_date?: string | null
+          source?: Database["public"]["Enums"]["enquiry_source"]
+          stage?: Database["public"]["Enums"]["enquiry_stage"]
+          stage_changed_at?: string
+          summary?: string | null
+          updated_at?: string
+          value_pence?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enquiries_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enquiries_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enquiries_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enquiry_events: {
+        Row: {
+          body: string | null
+          created_at: string
+          created_by: string | null
+          enquiry_id: string
+          id: string
+          kind: Database["public"]["Enums"]["enquiry_event_kind"]
+          org_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          enquiry_id: string
+          id?: string
+          kind: Database["public"]["Enums"]["enquiry_event_kind"]
+          org_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          created_by?: string | null
+          enquiry_id?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["enquiry_event_kind"]
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enquiry_events_enquiry_id_fkey"
+            columns: ["enquiry_id"]
+            isOneToOne: false
+            referencedRelation: "enquiries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enquiry_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           created_at: string
@@ -859,6 +995,16 @@ export type Database = {
         | "approved"
         | "processed"
         | "auto_refunded"
+      enquiry_event_kind: "stage_change" | "note" | "email_in" | "email_out"
+      enquiry_source: "email" | "manual" | "web" | "referral"
+      enquiry_stage:
+        | "request"
+        | "viewing"
+        | "in_offer"
+        | "pre_check_in"
+        | "in_tenancy"
+        | "post_check_out"
+        | "lost"
       member_role: "ops" | "brandhost" | "cleaner"
       notification_channel: "sms" | "email" | "slack"
       notification_status: "sent" | "delivered" | "failed"
@@ -1035,6 +1181,17 @@ export const Constants = {
         "processed",
         "auto_refunded",
       ],
+      enquiry_event_kind: ["stage_change", "note", "email_in", "email_out"],
+      enquiry_source: ["email", "manual", "web", "referral"],
+      enquiry_stage: [
+        "request",
+        "viewing",
+        "in_offer",
+        "pre_check_in",
+        "in_tenancy",
+        "post_check_out",
+        "lost",
+      ],
       member_role: ["ops", "brandhost", "cleaner"],
       notification_channel: ["sms", "email", "slack"],
       notification_status: ["sent", "delivered", "failed"],
@@ -1071,5 +1228,4 @@ export const Constants = {
   },
 } as const
 
-// PRIME Ops app-level type. Kept here so consumers only import from one place.
 export type AppRole = "ops" | "brandhost" | "cleaner";

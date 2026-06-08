@@ -1,10 +1,10 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import type { Database } from "./types";
 
 // Server Components, Route Handlers, and Server Actions.
-// Reads/writes the auth cookie via Next's cookies() store.
+// Reads/writes the auth cookie via Next's cookies() store (ssr getAll/setAll API).
 export function createSupabaseServerClient() {
   const cookieStore = cookies();
   return createServerClient<Database>(
@@ -12,22 +12,17 @@ export function createSupabaseServerClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
+        setAll(cookiesToSet) {
           try {
-            cookieStore.set({ name, value, ...options });
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
           } catch {
             // Called from a Server Component without a mutating context.
-            // Safe to ignore; middleware will refresh the cookie on the next request.
-          }
-        },
-        remove(name: string, options: CookieOptions) {
-          try {
-            cookieStore.set({ name, value: "", ...options });
-          } catch {
-            // See note above.
+            // Safe to ignore; middleware refreshes the cookie on the next request.
           }
         }
       }
