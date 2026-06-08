@@ -133,6 +133,17 @@ function brandFromSubject(subject: string): string | null {
   return m && m[1] ? m[1].trim() : null;
 }
 
+// In viewing/message bodies the brand sits right before the address token,
+// e.g. "...booked Forrester Photography 59, Greek Street 15 Oct...".
+// Lowercase words (booked, hours) break the run, so we capture the trailing
+// run of capitalised words immediately before "N, Street".
+export function brandFromBody(body: string): string | null {
+  const m = body.match(
+    /([A-Z][A-Za-z&'’.-]+(?:\s+[A-Z][A-Za-z&'’.-]+){0,4})\s+\d{1,4},?\s+[A-Z][A-Za-z'’.]+(?:\s+[A-Z][A-Za-z'’.]+)*\s+(?:Street|St|Road|Rd|Lane|Hill|Place|Pl)\b/
+  );
+  return m && m[1] ? m[1].trim() : null;
+}
+
 // ---------- top level ----------
 export function parseEmail(
   input: EmailInput,
@@ -162,7 +173,7 @@ export function parseEmail(
   const { start, end } = extractDates(input.body, fallbackYear);
   const propertyAddress = extractPropertyAddress(input.body);
   const propertyId = matchProperty(propertyAddress, properties);
-  const brand = brandFromSubject(input.subject);
+  const brand = brandFromSubject(input.subject) ?? brandFromBody(input.body);
 
   // A structured offer with all key fields resolved does not need review.
   const fullyResolved =

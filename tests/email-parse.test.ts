@@ -8,6 +8,7 @@ import {
   extractDates,
   extractPropertyAddress,
   matchProperty,
+  brandFromBody,
   parseEmail,
   type PropertyRef
 } from "../lib/email/parse";
@@ -87,6 +88,12 @@ test("parseEmail: noise is ignored", () => {
     2026
   );
   assert.equal(parsed.ignore, true);
+});
+
+test("brandFromBody captures the brand before the address in viewing/message bodies", () => {
+  assert.equal(brandFromBody("Your viewing is booked Forrester Photography 59, Greek Street 15 Oct - 17 Oct"), "Forrester Photography");
+  assert.equal(brandFromBody("Would you accept this? London Kyrgyz Art 15, Bateman Street 6 Nov - 8 Nov"), "London Kyrgyz Art");
+  assert.equal(brandFromBody("nothing structured here"), null);
 });
 
 test("parseEmail: a free-text concierge message is kept but flagged for review", () => {
