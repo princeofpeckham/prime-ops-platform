@@ -382,6 +382,78 @@ export type Database = {
           },
         ]
       }
+      email_messages: {
+        Row: {
+          body_text: string | null
+          classified_kind: string | null
+          created_at: string
+          enquiry_id: string | null
+          external_message_id: string
+          from_address: string | null
+          id: string
+          org_id: string
+          parse_error: string | null
+          parsed_reference: string | null
+          received_at: string | null
+          source: string
+          status: Database["public"]["Enums"]["email_message_status"]
+          subject: string | null
+          thread_id: string | null
+          to_address: string | null
+        }
+        Insert: {
+          body_text?: string | null
+          classified_kind?: string | null
+          created_at?: string
+          enquiry_id?: string | null
+          external_message_id: string
+          from_address?: string | null
+          id?: string
+          org_id: string
+          parse_error?: string | null
+          parsed_reference?: string | null
+          received_at?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["email_message_status"]
+          subject?: string | null
+          thread_id?: string | null
+          to_address?: string | null
+        }
+        Update: {
+          body_text?: string | null
+          classified_kind?: string | null
+          created_at?: string
+          enquiry_id?: string | null
+          external_message_id?: string
+          from_address?: string | null
+          id?: string
+          org_id?: string
+          parse_error?: string | null
+          parsed_reference?: string | null
+          received_at?: string | null
+          source?: string
+          status?: Database["public"]["Enums"]["email_message_status"]
+          subject?: string | null
+          thread_id?: string | null
+          to_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_messages_enquiry_id_fkey"
+            columns: ["enquiry_id"]
+            isOneToOne: false
+            referencedRelation: "enquiries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_messages_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enquiries: {
         Row: {
           booking_id: string | null
@@ -995,6 +1067,7 @@ export type Database = {
         | "approved"
         | "processed"
         | "auto_refunded"
+      email_message_status: "received" | "parsed" | "ignored" | "failed"
       enquiry_event_kind: "stage_change" | "note" | "email_in" | "email_out"
       enquiry_source: "email" | "manual" | "web" | "referral"
       enquiry_stage:
@@ -1181,6 +1254,7 @@ export const Constants = {
         "processed",
         "auto_refunded",
       ],
+      email_message_status: ["received", "parsed", "ignored", "failed"],
       enquiry_event_kind: ["stage_change", "note", "email_in", "email_out"],
       enquiry_source: ["email", "manual", "web", "referral"],
       enquiry_stage: [
