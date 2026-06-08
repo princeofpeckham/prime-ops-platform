@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getActiveOrgId } from "@/lib/auth/org";
+import { buildOpsForBooking } from "@/lib/bookings/ops";
 import type { EnquiryStage } from "@/lib/inbox/types";
 
 function toPence(pounds: string): number | null {
@@ -119,6 +120,18 @@ export async function promoteToBooking(enquiryId: string): Promise<{ ok: boolean
     .select("id")
     .single();
   if (bookingErr || !booking) return { ok: false, message: bookingErr?.message ?? "Could not create booking" };
+
+  // Auto-create the check-in/check-out shifts and pre/post cleans for the booking.
+  const ops = buildOpsForBooking({
+    id: booking.id,
+    org_id: orgId,
+    property_id: enquiry.property_id,
+    check_in_date: enquiry.requested_start_date,
+    check_out_date: enquiry.requested_end_date,
+    brand_name: enquiry.brand_or_tenant_name
+  });
+  await supabase.from("shifts").insert(ops.shifts);
+  await supabase.from("cleaning_jobs").insert(ops.cleans);
 
   await supabase
     .from("enquiries")
