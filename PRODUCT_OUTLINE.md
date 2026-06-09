@@ -21,8 +21,11 @@ their own properties, enquiries, and team.
 **EDIT:** in your words, what is the single biggest pain this removes? (mine:
 "enquiries and ops live in 6 different tools and nothing talks to each other").
 
-[insert note with wisper flow about how landlords hire property mangaers who have deal with high volume input from appear here and other similar platforms or their own audience. FAQs are a bottleneck - autonomy is justified]
+automated rule sending - having property condition remain consistent as rules are clear and adhered to by tenants.
 
+[insert note with wisper flow about how landlords hire property mangaers who have deal with high volume input from appear here and other similar platforms or their own audience. FAQs are a bottleneck - autonomy is justified] 
+[no real crm built for this] [no access to vendor and automated triggers with brandhosts] [an all-in-one property management system (not just software but hardware too)]
+[the machinery behind prime]
 [also add note about offering landlords bhs - keynest storing, painting, contractors, just in general offering the prime machine to any landlord who wants it]
 
 ---

@@ -456,6 +456,9 @@ function buildProperty(p: typeof MOCK_PROPERTIES[number]): Property {
     status: p.status,
     keynest_instructions: null,
     cleaning_rate_pence: 15000,
+    landlord_contact_name: null,
+    landlord_contact_email: null,
+    landlord_contact_phone: null,
     created_at: NOW_ISO_DEFAULT,
     updated_at: NOW_ISO_DEFAULT
   };

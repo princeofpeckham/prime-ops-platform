@@ -706,6 +706,9 @@ export type Database = {
           created_at: string
           id: string
           keynest_instructions: string | null
+          landlord_contact_email: string | null
+          landlord_contact_name: string | null
+          landlord_contact_phone: string | null
           name: string
           org_id: string
           postcode: string | null
@@ -719,6 +722,9 @@ export type Database = {
           created_at?: string
           id?: string
           keynest_instructions?: string | null
+          landlord_contact_email?: string | null
+          landlord_contact_name?: string | null
+          landlord_contact_phone?: string | null
           name: string
           org_id: string
           postcode?: string | null
@@ -732,6 +738,9 @@ export type Database = {
           created_at?: string
           id?: string
           keynest_instructions?: string | null
+          landlord_contact_email?: string | null
+          landlord_contact_name?: string | null
+          landlord_contact_phone?: string | null
           name?: string
           org_id?: string
           postcode?: string | null
@@ -745,6 +754,108 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_flags: {
+        Row: {
+          assigned_to: string | null
+          condition_report_area_id: string | null
+          condition_report_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          notes: string | null
+          org_id: string
+          photos: string[]
+          property_id: string
+          raised_by: string | null
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["flag_severity"]
+          source: Database["public"]["Enums"]["flag_source"]
+          status: Database["public"]["Enums"]["flag_status"]
+          title: string
+          trade: Database["public"]["Enums"]["trade_type"] | null
+          updated_at: string
+          vendor_job_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          condition_report_area_id?: string | null
+          condition_report_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          org_id: string
+          photos?: string[]
+          property_id: string
+          raised_by?: string | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["flag_severity"]
+          source?: Database["public"]["Enums"]["flag_source"]
+          status?: Database["public"]["Enums"]["flag_status"]
+          title: string
+          trade?: Database["public"]["Enums"]["trade_type"] | null
+          updated_at?: string
+          vendor_job_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          condition_report_area_id?: string | null
+          condition_report_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          org_id?: string
+          photos?: string[]
+          property_id?: string
+          raised_by?: string | null
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["flag_severity"]
+          source?: Database["public"]["Enums"]["flag_source"]
+          status?: Database["public"]["Enums"]["flag_status"]
+          title?: string
+          trade?: Database["public"]["Enums"]["trade_type"] | null
+          updated_at?: string
+          vendor_job_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_flags_condition_report_area_id_fkey"
+            columns: ["condition_report_area_id"]
+            isOneToOne: false
+            referencedRelation: "condition_report_areas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_flags_condition_report_id_fkey"
+            columns: ["condition_report_id"]
+            isOneToOne: false
+            referencedRelation: "condition_reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_flags_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_flags_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_flags_vendor_job_id_fkey"
+            columns: ["vendor_job_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_jobs"
             referencedColumns: ["id"]
           },
         ]
@@ -1078,6 +1189,20 @@ export type Database = {
         | "in_tenancy"
         | "post_check_out"
         | "lost"
+      flag_severity: "low" | "medium" | "high" | "urgent"
+      flag_source:
+        | "condition_report"
+        | "cleaner"
+        | "brandhost"
+        | "ops_manual"
+        | "system"
+      flag_status:
+        | "raised"
+        | "triaged"
+        | "assigned"
+        | "in_progress"
+        | "resolved"
+        | "dismissed"
       member_role: "ops" | "brandhost" | "cleaner"
       notification_channel: "sms" | "email" | "slack"
       notification_status: "sent" | "delivered" | "failed"
@@ -1265,6 +1390,22 @@ export const Constants = {
         "in_tenancy",
         "post_check_out",
         "lost",
+      ],
+      flag_severity: ["low", "medium", "high", "urgent"],
+      flag_source: [
+        "condition_report",
+        "cleaner",
+        "brandhost",
+        "ops_manual",
+        "system",
+      ],
+      flag_status: [
+        "raised",
+        "triaged",
+        "assigned",
+        "in_progress",
+        "resolved",
+        "dismissed",
       ],
       member_role: ["ops", "brandhost", "cleaner"],
       notification_channel: ["sms", "email", "slack"],
