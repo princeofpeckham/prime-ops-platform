@@ -10,9 +10,28 @@
 //   Shift rate  weekday 1700, weekend 2000 (pence/hr) from lib/rates.ts
 //   Clean rate  property cleaning_rate_pence (default 15000)
 
-import { isoIsWeekend } from "@/lib/utils";
+import { isoIsWeekend, addDaysIso } from "@/lib/utils";
 import { BH_RATES } from "@/lib/rates";
 import type { TablesInsert } from "@/lib/supabase/types";
+
+// Deposit window is 14 days from checkout (Technical Spec 3.11).
+export const DEPOSIT_WINDOW_DAYS = 14;
+
+export function buildDepositForBooking(b: {
+  id: string;
+  org_id: string;
+  property_id: string;
+  check_out_date: string;
+}): TablesInsert<"deposits"> {
+  return {
+    org_id: b.org_id,
+    booking_id: b.id,
+    property_id: b.property_id,
+    checkout_date: b.check_out_date,
+    deadline_date: addDaysIso(b.check_out_date, DEPOSIT_WINDOW_DAYS),
+    status: "pending_review"
+  };
+}
 
 export type BookingForOps = {
   id: string;
