@@ -29,6 +29,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
             <nav className="hidden items-center gap-4 text-sm text-neutral-600 md:flex">
               <Link href="/dashboard" className="hover:text-neutral-900">Command Centre</Link>
               <Link href="/inbox" className="hover:text-neutral-900">Inbox</Link>
+              <Link href="/calendar" className="hover:text-neutral-900">Calendar</Link>
               <Link href="/shifts" className="hover:text-neutral-900">Shifts</Link>
               <Link href="/cleaning" className="hover:text-neutral-900">Cleaning</Link>
               <Link href="/reports" className="hover:text-neutral-900">Reports</Link>

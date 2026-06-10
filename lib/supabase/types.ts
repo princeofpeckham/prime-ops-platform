@@ -590,6 +590,92 @@ export type Database = {
           },
         ]
       }
+      maintenance_jobs: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          id: string
+          notes: string | null
+          org_id: string
+          property_flag_id: string | null
+          property_id: string
+          scheduled_date: string | null
+          status: Database["public"]["Enums"]["maintenance_status"]
+          time_window: string | null
+          title: string
+          trade: Database["public"]["Enums"]["trade_type"] | null
+          updated_at: string
+          vendor_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          org_id: string
+          property_flag_id?: string | null
+          property_id: string
+          scheduled_date?: string | null
+          status?: Database["public"]["Enums"]["maintenance_status"]
+          time_window?: string | null
+          title: string
+          trade?: Database["public"]["Enums"]["trade_type"] | null
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          notes?: string | null
+          org_id?: string
+          property_flag_id?: string | null
+          property_id?: string
+          scheduled_date?: string | null
+          status?: Database["public"]["Enums"]["maintenance_status"]
+          time_window?: string | null
+          title?: string
+          trade?: Database["public"]["Enums"]["trade_type"] | null
+          updated_at?: string
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_jobs_property_flag_id_fkey"
+            columns: ["property_flag_id"]
+            isOneToOne: false
+            referencedRelation: "property_flags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_jobs_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_jobs_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           created_at: string
@@ -1203,6 +1289,12 @@ export type Database = {
         | "in_progress"
         | "resolved"
         | "dismissed"
+      maintenance_status:
+        | "unscheduled"
+        | "scheduled"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
       member_role: "ops" | "brandhost" | "cleaner"
       notification_channel: "sms" | "email" | "slack"
       notification_status: "sent" | "delivered" | "failed"
@@ -1406,6 +1498,13 @@ export const Constants = {
         "in_progress",
         "resolved",
         "dismissed",
+      ],
+      maintenance_status: [
+        "unscheduled",
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled",
       ],
       member_role: ["ops", "brandhost", "cleaner"],
       notification_channel: ["sms", "email", "slack"],
