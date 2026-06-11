@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Tables } from "@/lib/supabase/types";
 import {
   OCCUPANCY_WINDOW_DAYS,
+  buildDepositsAnalytics,
   buildFunnel,
   buildOccupancy,
   isOpenStage
@@ -25,12 +26,13 @@ export async function fetchAnalyticsFromSupabase(now: Date = new Date()): Promis
   const supabase = createSupabaseServerClient();
   const windowStart = londonToday(now);
 
-  const [enquiriesRes, bookingsRes, shiftsRes, vendorsRes, propertiesRes] = await Promise.all([
+  const [enquiriesRes, bookingsRes, shiftsRes, vendorsRes, propertiesRes, depositsRes] = await Promise.all([
     supabase.from("enquiries").select("*").order("updated_at", { ascending: false }),
     supabase.from("bookings").select("*").order("check_in_date", { ascending: true }),
     supabase.from("shifts").select("*").order("date", { ascending: true }),
     supabase.from("vendors").select("*").order("name"),
-    supabase.from("properties").select("*").order("name")
+    supabase.from("properties").select("*").order("name"),
+    supabase.from("deposits").select("*")
   ]);
 
   const enquiries: Tables<"enquiries">[] = enquiriesRes.data ?? [];
@@ -38,6 +40,7 @@ export async function fetchAnalyticsFromSupabase(now: Date = new Date()): Promis
   const shifts: Tables<"shifts">[] = shiftsRes.data ?? [];
   const vendors: Tables<"vendors">[] = vendorsRes.data ?? [];
   const properties: Tables<"properties">[] = propertiesRes.data ?? [];
+  const depositRows: Tables<"deposits">[] = depositsRes.data ?? [];
 
   const propertyNameById = new Map(properties.map((p) => [p.id, p.name]));
 
@@ -113,6 +116,17 @@ export async function fetchAnalyticsFromSupabase(now: Date = new Date()): Promis
     OCCUPANCY_WINDOW_DAYS
   );
 
+  const deposits = buildDepositsAnalytics(
+    properties.map((p) => ({ id: p.id, name: p.name })),
+    depositRows.map((d) => ({
+      propertyId: d.property_id,
+      status: d.status,
+      deductionAmountPence: d.deduction_amount_pence,
+      checkoutDate: d.checkout_date
+    })),
+    windowStart
+  );
+
   return {
     metrics,
     funnel,
@@ -122,6 +136,7 @@ export async function fetchAnalyticsFromSupabase(now: Date = new Date()): Promis
     shifts: shiftRows,
     vendors: vendorRows,
     properties: propertyRows,
+    deposits,
     windowStart,
     source: "supabase",
     generatedAt: now.toISOString()

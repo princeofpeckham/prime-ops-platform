@@ -91,7 +91,7 @@ export function generateMockCleanerHistory(now: Date = new Date()): CleanerHisto
     .sort((a, b) => b.date.localeCompare(a.date));
   return {
     jobs: items,
-    totalEarnedPence: items.reduce((sum, it) => sum + it.ratePence, 0),
+    totalChargedPence: items.reduce((sum, it) => sum + it.ratePence, 0),
     completedCount: items.length,
     source: "mock",
     generatedAt: now.toISOString()

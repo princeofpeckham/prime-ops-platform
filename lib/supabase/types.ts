@@ -590,6 +590,95 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          billed_to_address: string | null
+          billed_to_name: string
+          booking_id: string | null
+          created_at: string
+          deposit_id: string | null
+          id: string
+          invoice_number: string
+          issued_date: string | null
+          line_items: Json
+          notes: string | null
+          org_id: string
+          property_id: string
+          status: Database["public"]["Enums"]["invoice_status"]
+          subtotal_pence: number
+          total_pence: number
+          updated_at: string
+          vat_pence: number
+        }
+        Insert: {
+          billed_to_address?: string | null
+          billed_to_name: string
+          booking_id?: string | null
+          created_at?: string
+          deposit_id?: string | null
+          id?: string
+          invoice_number: string
+          issued_date?: string | null
+          line_items?: Json
+          notes?: string | null
+          org_id: string
+          property_id: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal_pence?: number
+          total_pence?: number
+          updated_at?: string
+          vat_pence?: number
+        }
+        Update: {
+          billed_to_address?: string | null
+          billed_to_name?: string
+          booking_id?: string | null
+          created_at?: string
+          deposit_id?: string | null
+          id?: string
+          invoice_number?: string
+          issued_date?: string | null
+          line_items?: Json
+          notes?: string | null
+          org_id?: string
+          property_id?: string
+          status?: Database["public"]["Enums"]["invoice_status"]
+          subtotal_pence?: number
+          total_pence?: number
+          updated_at?: string
+          vat_pence?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_deposit_id_fkey"
+            columns: ["deposit_id"]
+            isOneToOne: false
+            referencedRelation: "deposits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       maintenance_jobs: {
         Row: {
           assigned_to: string | null
@@ -791,6 +880,8 @@ export type Database = {
           cleaning_rate_pence: number
           created_at: string
           id: string
+          invoice_next_seq: number
+          invoice_prefix: string | null
           keynest_instructions: string | null
           landlord_contact_email: string | null
           landlord_contact_name: string | null
@@ -807,6 +898,8 @@ export type Database = {
           cleaning_rate_pence?: number
           created_at?: string
           id?: string
+          invoice_next_seq?: number
+          invoice_prefix?: string | null
           keynest_instructions?: string | null
           landlord_contact_email?: string | null
           landlord_contact_name?: string | null
@@ -823,6 +916,8 @@ export type Database = {
           cleaning_rate_pence?: number
           created_at?: string
           id?: string
+          invoice_next_seq?: number
+          invoice_prefix?: string | null
           keynest_instructions?: string | null
           landlord_contact_email?: string | null
           landlord_contact_name?: string | null
@@ -1243,6 +1338,7 @@ export type Database = {
       is_brandhost: { Args: never; Returns: boolean }
       is_cleaner: { Args: never; Returns: boolean }
       is_ops: { Args: never; Returns: boolean }
+      next_invoice_number: { Args: { p_property: string }; Returns: string }
       user_role: { Args: never; Returns: string }
     }
     Enums: {
@@ -1289,6 +1385,7 @@ export type Database = {
         | "in_progress"
         | "resolved"
         | "dismissed"
+      invoice_status: "draft" | "issued" | "paid" | "void"
       maintenance_status:
         | "unscheduled"
         | "scheduled"
@@ -1499,6 +1596,7 @@ export const Constants = {
         "resolved",
         "dismissed",
       ],
+      invoice_status: ["draft", "issued", "paid", "void"],
       maintenance_status: [
         "unscheduled",
         "scheduled",

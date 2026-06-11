@@ -107,7 +107,7 @@ export async function fetchCleanerHistoryFromSupabase(now: Date = new Date()): P
 
   const empty: CleanerHistoryData = {
     jobs: [],
-    totalEarnedPence: 0,
+    totalChargedPence: 0,
     completedCount: 0,
     source: "supabase",
     generatedAt: now.toISOString()
@@ -129,7 +129,7 @@ export async function fetchCleanerHistoryFromSupabase(now: Date = new Date()): P
 
   return {
     jobs: items,
-    totalEarnedPence: items.reduce((sum, it) => sum + it.ratePence, 0),
+    totalChargedPence: items.reduce((sum, it) => sum + it.ratePence, 0),
     completedCount: items.length,
     source: "supabase",
     generatedAt: now.toISOString()

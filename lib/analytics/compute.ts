@@ -3,6 +3,9 @@
 
 import { addDaysIso, isoBetween } from "@/lib/utils";
 import type {
+  DepositsAnalytics,
+  DepositSpaceRow,
+  DepositStatus,
   EnquiryStage,
   FunnelStageStat,
   OccupancyRow,
@@ -102,4 +105,58 @@ export function tierTone(tier: PropertyTier): "accent" | "good" | "muted" {
   if (tier === "prime") return "accent";
   if (tier === "pro") return "good";
   return "muted";
+}
+
+// Minimal deposit shape for the per-space tracker, so callers can pass either
+// live rows or mock rows without coupling to the full table type.
+export type DepositForAnalytics = {
+  propertyId: string;
+  status: DepositStatus;
+  deductionAmountPence: number | null;
+  checkoutDate: string;          // ISO YYYY-MM-DD
+};
+
+// A deduction counts once it has been proposed, approved or processed.
+const DEDUCTING_STATUSES: readonly DepositStatus[] = [
+  "deduction_proposed",
+  "approved",
+  "processed"
+] as const;
+
+// A deposit is still held until it has been processed or auto refunded.
+const SETTLED_STATUSES: readonly DepositStatus[] = ["processed", "auto_refunded"] as const;
+
+function deductionPence(deposit: DepositForAnalytics): number {
+  if (!DEDUCTING_STATUSES.includes(deposit.status)) return 0;
+  return deposit.deductionAmountPence ?? 0;
+}
+
+// Per-property deposit stats plus the headline total deducted this calendar
+// year (by checkout date). Every property gets a row, zeros included, so the
+// bars are stable; rows are sorted with the biggest deductions first.
+export function buildDepositsAnalytics(
+  properties: { id: string; name: string }[],
+  deposits: DepositForAnalytics[],
+  todayIso: string
+): DepositsAnalytics {
+  const currentYear = todayIso.slice(0, 4);
+
+  const bySpace: DepositSpaceRow[] = properties
+    .map((property) => {
+      const propDeposits = deposits.filter((d) => d.propertyId === property.id);
+      return {
+        propertyId: property.id,
+        propertyName: property.name,
+        heldCount: propDeposits.filter((d) => !SETTLED_STATUSES.includes(d.status)).length,
+        deductedPence: propDeposits.reduce((sum, d) => sum + deductionPence(d), 0),
+        refundedCount: propDeposits.filter((d) => d.status === "auto_refunded").length
+      };
+    })
+    .sort((a, b) => b.deductedPence - a.deductedPence);
+
+  const totalDeductedThisYearPence = deposits
+    .filter((d) => d.checkoutDate.slice(0, 4) === currentYear)
+    .reduce((sum, d) => sum + deductionPence(d), 0);
+
+  return { bySpace, totalDeductedThisYearPence };
 }

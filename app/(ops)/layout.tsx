@@ -36,6 +36,7 @@ export default async function OpsLayout({ children }: { children: React.ReactNod
               <Link href="/flags" className="hover:text-neutral-900">Flags</Link>
               <Link href="/vendors" className="hover:text-neutral-900">Vendors</Link>
               <Link href="/deposits" className="hover:text-neutral-900">Deposits</Link>
+              <Link href="/invoices" className="hover:text-neutral-900">Invoices</Link>
               <Link href="/analytics" className="hover:text-neutral-900">Analytics</Link>
             </nav>
           </div>

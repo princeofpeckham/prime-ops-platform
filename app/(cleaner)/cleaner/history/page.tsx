@@ -20,18 +20,21 @@ export default async function CleanerHistoryPage() {
       <section className="grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-neutral-200 bg-white p-4">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
-            Earned
-          </div>
-          <div className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900">
-            {penceToGbp(data.totalEarnedPence)}
-          </div>
-        </div>
-        <div className="rounded-lg border border-neutral-200 bg-white p-4">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
             Cleans done
           </div>
           <div className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900">
             {data.completedCount}
+          </div>
+        </div>
+        <div className="rounded-lg border border-neutral-200 bg-white p-4">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+            Charged to brands
+          </div>
+          <div className="mt-1 text-2xl font-semibold tabular-nums text-neutral-900">
+            {penceToGbp(data.totalChargedPence)}
+          </div>
+          <div className="mt-0.5 text-[11px] text-neutral-400">
+            Per-hour pay reporting is coming.
           </div>
         </div>
       </section>
@@ -69,6 +72,7 @@ export default async function CleanerHistoryPage() {
                 <span className="text-sm font-semibold tabular-nums text-neutral-900">
                   {penceToGbp(job.ratePence)}
                 </span>
+                <span className="text-[10px] text-neutral-400">brand charge</span>
                 <Badge tone="good">Completed</Badge>
               </div>
             </article>

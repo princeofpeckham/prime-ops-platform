@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { STATUS_LABEL, STATUS_TONE, countdownLabel, daysToDeadline, isClosed } from "@/lib/deposits/status";
 import type { DepositItem } from "@/lib/deposits/types";
 import { proposeDeduction, approveDeposit, processDeposit } from "@/app/(ops)/deposits/actions";
+import { CreateInvoiceModal } from "@/components/invoices/CreateInvoiceModal";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -32,6 +33,7 @@ function DrawerInner({ item, onClose }: { item: DepositItem; onClose: () => void
     item.deductionAmountPence != null ? String(item.deductionAmountPence / 100) : ""
   );
   const [reason, setReason] = useState(item.deductionReason ?? "");
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   const days = daysToDeadline(item.deadlineDate);
   const overdueOrSoon = !isClosed(item.status) && days <= 3;
@@ -40,6 +42,7 @@ function DrawerInner({ item, onClose }: { item: DepositItem; onClose: () => void
   const canPropose = item.status === "pending_review" || item.status === "deduction_proposed";
   const canApprove = item.status === "deduction_proposed";
   const canProcess = item.status === "approved";
+  const canInvoice = !closed;
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end">
@@ -122,6 +125,23 @@ function DrawerInner({ item, onClose }: { item: DepositItem; onClose: () => void
             </section>
           ) : null}
 
+          {canInvoice ? (
+            <section className="flex flex-col gap-2 rounded-lg border border-neutral-200 p-3">
+              <span className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                Deposit invoice
+              </span>
+              <p className="text-sm text-neutral-600">
+                Build an itemised invoice for cleaning, collections or damage against this deposit.
+              </p>
+              <button
+                onClick={() => setShowInvoiceModal(true)}
+                className="rounded-md border border-neutral-300 px-3 py-2 text-sm hover:bg-neutral-50"
+              >
+                Create invoice
+              </button>
+            </section>
+          ) : null}
+
           {canApprove ? (
             <section className="flex flex-col gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
               <span className="text-sm font-medium text-emerald-900">Approve this decision?</span>
@@ -167,6 +187,18 @@ function DrawerInner({ item, onClose }: { item: DepositItem; onClose: () => void
           ) : null}
         </div>
       </aside>
+
+      {showInvoiceModal ? (
+        <CreateInvoiceModal
+          depositId={item.id}
+          brandName={item.brandName}
+          onClose={() => setShowInvoiceModal(false)}
+          onCreated={() => {
+            setShowInvoiceModal(false);
+            onClose();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

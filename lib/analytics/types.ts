@@ -5,6 +5,7 @@ export type BookingStatus = Enums<"booking_status">;
 export type ShiftStatus = Enums<"shift_status">;
 export type PropertyTier = Enums<"property_tier">;
 export type TradeType = Enums<"trade_type">;
+export type DepositStatus = Enums<"deposit_status">;
 
 // One slice of the funnel: how many enquiries currently sit at a stage.
 export type FunnelStageStat = {
@@ -82,6 +83,20 @@ export type PropertyRow = {
   address: string;
 };
 
+// Per-space deposit tracker: how each property's deposits are faring.
+export type DepositSpaceRow = {
+  propertyId: string;
+  propertyName: string;
+  heldCount: number;             // deposits still open (not processed or auto refunded)
+  deductedPence: number;         // sum of deductions proposed, approved or processed
+  refundedCount: number;         // deposits auto refunded in full
+};
+
+export type DepositsAnalytics = {
+  bySpace: DepositSpaceRow[];
+  totalDeductedThisYearPence: number;  // deductions on deposits checked out this calendar year
+};
+
 export type AnalyticsData = {
   metrics: HeadlineMetrics;
   funnel: FunnelStageStat[];
@@ -91,6 +106,7 @@ export type AnalyticsData = {
   shifts: ShiftRow[];
   vendors: VendorRow[];
   properties: PropertyRow[];
+  deposits: DepositsAnalytics;
   windowStart: string;         // ISO date, first day of the 30 day occupancy window
   source: "supabase" | "mock";
   generatedAt: string;

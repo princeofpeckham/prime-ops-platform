@@ -459,6 +459,8 @@ function buildProperty(p: typeof MOCK_PROPERTIES[number]): Property {
     landlord_contact_name: null,
     landlord_contact_email: null,
     landlord_contact_phone: null,
+    invoice_prefix: null,
+    invoice_next_seq: 1,
     created_at: NOW_ISO_DEFAULT,
     updated_at: NOW_ISO_DEFAULT
   };

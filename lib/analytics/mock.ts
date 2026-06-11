@@ -6,10 +6,12 @@
 import { addDaysIso, londonToday } from "@/lib/utils";
 import {
   OCCUPANCY_WINDOW_DAYS,
+  buildDepositsAnalytics,
   buildFunnel,
   buildOccupancy,
   isOpenStage
 } from "./compute";
+import type { DepositForAnalytics } from "./compute";
 import type {
   AnalyticsData,
   BookingRow,
@@ -101,6 +103,26 @@ const SHIFT_SEEDS: ShiftSeed[] = [
   { id: "s10", type: "check_in", status: "open", dayOffset: 40, propertyId: "p-greek-st" }
 ];
 
+// Deposit seeds mirror the deposits screen mock: same brands, properties and
+// deduction amounts, with checkout dates relative to today (all this year).
+type DepositSeed = {
+  propertyId: string;
+  status: DepositForAnalytics["status"];
+  deductionAmountPence: number | null;
+  checkoutOffset: number;
+};
+
+const DEPOSIT_SEEDS: DepositSeed[] = [
+  { propertyId: "p-hay-hill", status: "pending_review", deductionAmountPence: null, checkoutOffset: -19 },
+  { propertyId: "p-greek-st", status: "pending_review", deductionAmountPence: null, checkoutOffset: -16 },
+  { propertyId: "p-darblay", status: "deduction_proposed", deductionAmountPence: 45000, checkoutOffset: -15 },
+  { propertyId: "p-greek-st", status: "deduction_proposed", deductionAmountPence: 18000, checkoutOffset: -12 },
+  { propertyId: "p-paddington", status: "approved", deductionAmountPence: 0, checkoutOffset: -11 },
+  { propertyId: "p-paddington", status: "approved", deductionAmountPence: 32000, checkoutOffset: -10 },
+  { propertyId: "p-greek-st", status: "processed", deductionAmountPence: 0, checkoutOffset: -28 },
+  { propertyId: "p-hay-hill", status: "auto_refunded", deductionAmountPence: null, checkoutOffset: -24 }
+];
+
 const VENDOR_SEEDS: VendorRow[] = [
   { id: "v1", name: "Soho Signage Co", trade: "signage", isApproved: true, totalJobs: 24, totalSpendPence: 1860000, qualityRating: 4.7 },
   { id: "v2", name: "Mayfair Blinds", trade: "blinds", isApproved: true, totalJobs: 11, totalSpendPence: 740000, qualityRating: 4.4 },
@@ -179,6 +201,17 @@ export function generateMockAnalytics(now: Date = new Date()): AnalyticsData {
     OCCUPANCY_WINDOW_DAYS
   );
 
+  const deposits = buildDepositsAnalytics(
+    DEMO_PROPERTIES.map((p) => ({ id: p.id, name: p.name })),
+    DEPOSIT_SEEDS.map((d) => ({
+      propertyId: d.propertyId,
+      status: d.status,
+      deductionAmountPence: d.deductionAmountPence,
+      checkoutDate: addDaysIso(windowStart, d.checkoutOffset)
+    })),
+    windowStart
+  );
+
   return {
     metrics,
     funnel,
@@ -188,6 +221,7 @@ export function generateMockAnalytics(now: Date = new Date()): AnalyticsData {
     shifts,
     vendors,
     properties,
+    deposits,
     windowStart,
     source: "mock",
     generatedAt: now.toISOString()

@@ -33,10 +33,12 @@ export type CleanerJobsData = {
   generatedAt: string;
 };
 
-// The cleaner's finished work plus what they have earned for it.
+// The cleaner's finished work. Note: rate_pence is what the brand is charged
+// for the clean (e.g. £150), not the cleaner's pay, so the money figure here
+// is framed as "charged to brands". Per-hour pay reporting is a separate job.
 export type CleanerHistoryData = {
   jobs: CleanerJobItem[];       // completed jobs, most recent first
-  totalEarnedPence: number;     // sum of rate_pence across completed jobs
+  totalChargedPence: number;    // sum of rate_pence (brand charges) across completed jobs
   completedCount: number;
   source: "supabase" | "mock";
   generatedAt: string;
