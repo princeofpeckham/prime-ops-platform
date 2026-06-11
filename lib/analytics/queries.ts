@@ -10,6 +10,7 @@ import {
   buildDepositsAnalytics,
   buildFunnel,
   buildOccupancy,
+  buildOccupancyHistory,
   isOpenStage
 } from "./compute";
 import type {
@@ -26,13 +27,14 @@ export async function fetchAnalyticsFromSupabase(now: Date = new Date()): Promis
   const supabase = createSupabaseServerClient();
   const windowStart = londonToday(now);
 
-  const [enquiriesRes, bookingsRes, shiftsRes, vendorsRes, propertiesRes, depositsRes] = await Promise.all([
+  const [enquiriesRes, bookingsRes, shiftsRes, vendorsRes, propertiesRes, depositsRes, spaceMetricsRes] = await Promise.all([
     supabase.from("enquiries").select("*").order("updated_at", { ascending: false }),
     supabase.from("bookings").select("*").order("check_in_date", { ascending: true }),
     supabase.from("shifts").select("*").order("date", { ascending: true }),
     supabase.from("vendors").select("*").order("name"),
     supabase.from("properties").select("*").order("name"),
-    supabase.from("deposits").select("*")
+    supabase.from("deposits").select("*"),
+    supabase.from("space_metrics").select("*").order("month", { ascending: true })
   ]);
 
   const enquiries: Tables<"enquiries">[] = enquiriesRes.data ?? [];
@@ -41,6 +43,7 @@ export async function fetchAnalyticsFromSupabase(now: Date = new Date()): Promis
   const vendors: Tables<"vendors">[] = vendorsRes.data ?? [];
   const properties: Tables<"properties">[] = propertiesRes.data ?? [];
   const depositRows: Tables<"deposits">[] = depositsRes.data ?? [];
+  const spaceMetricRows: Tables<"space_metrics">[] = spaceMetricsRes.data ?? [];
 
   const propertyNameById = new Map(properties.map((p) => [p.id, p.name]));
 
@@ -127,6 +130,17 @@ export async function fetchAnalyticsFromSupabase(now: Date = new Date()): Promis
     windowStart
   );
 
+  const occupancyHistory = buildOccupancyHistory(
+    spaceMetricRows.map((r) => ({
+      propertyId: r.property_id,
+      month: r.month,
+      bookedDays: r.booked_days,
+      ttvPence: r.ttv_pence
+    })),
+    propertyNameById,
+    windowStart
+  );
+
   return {
     metrics,
     funnel,
@@ -137,6 +151,7 @@ export async function fetchAnalyticsFromSupabase(now: Date = new Date()): Promis
     vendors: vendorRows,
     properties: propertyRows,
     deposits,
+    occupancyHistory,
     windowStart,
     source: "supabase",
     generatedAt: now.toISOString()

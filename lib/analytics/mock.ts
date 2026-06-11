@@ -9,9 +9,10 @@ import {
   buildDepositsAnalytics,
   buildFunnel,
   buildOccupancy,
+  buildOccupancyHistory,
   isOpenStage
 } from "./compute";
-import type { DepositForAnalytics } from "./compute";
+import type { DepositForAnalytics, SpaceMetricForHistory } from "./compute";
 import type {
   AnalyticsData,
   BookingRow,
@@ -123,6 +124,61 @@ const DEPOSIT_SEEDS: DepositSeed[] = [
   { propertyId: "p-hay-hill", status: "auto_refunded", deductionAmountPence: null, checkoutOffset: -24 }
 ];
 
+// Mock space_metrics history for the occupancy history section. Booked days
+// follow a believable seasonal shape per space; TTV is booked days times a
+// per-space day rate so average day rates differ. Last year is the same shape
+// scaled down, so year-on-year comparisons have something to show. Eastcastle
+// deliberately has no rows (it is mid fit-out), mirroring the real data where
+// not every property has history.
+type SpaceMetricPattern = {
+  propertyId: string;
+  dayRatePence: number;
+  bookedDaysByMonth: number[];   // Jan..Dec of the current year
+  priorYearFactor: number;       // scales booked days for last year's rows
+};
+
+const SPACE_METRIC_PATTERNS: SpaceMetricPattern[] = [
+  { propertyId: "p-greek-st", dayRatePence: 68000, bookedDaysByMonth: [24, 21, 26, 24, 28, 26, 25, 22, 27, 28, 29, 26], priorYearFactor: 0.85 },
+  { propertyId: "p-darblay", dayRatePence: 52000, bookedDaysByMonth: [18, 16, 22, 20, 24, 23, 21, 19, 24, 25, 26, 22], priorYearFactor: 0.9 },
+  { propertyId: "p-hay-hill", dayRatePence: 88000, bookedDaysByMonth: [12, 10, 16, 14, 18, 17, 15, 13, 19, 21, 23, 20], priorYearFactor: 0.7 },
+  { propertyId: "p-paddington", dayRatePence: 34000, bookedDaysByMonth: [20, 18, 23, 21, 25, 24, 22, 20, 25, 26, 27, 23], priorYearFactor: 0.95 }
+];
+
+// Expand the patterns into rows: a full prior year per space, plus the current
+// year up to and including this month (the current month is partial, so its
+// booked days are clamped to the day of the month).
+function buildMockSpaceMetrics(todayIso: string): SpaceMetricForHistory[] {
+  const year = Number(todayIso.slice(0, 4));
+  const currentMonth = Number(todayIso.slice(5, 7));
+  const dayOfMonth = Number(todayIso.slice(8, 10));
+
+  const rows: SpaceMetricForHistory[] = [];
+  for (const pattern of SPACE_METRIC_PATTERNS) {
+    pattern.bookedDaysByMonth.forEach((booked, i) => {
+      const monthIndex = i + 1;
+      const mm = String(monthIndex).padStart(2, "0");
+
+      const priorBooked = Math.round(booked * pattern.priorYearFactor);
+      rows.push({
+        propertyId: pattern.propertyId,
+        month: `${year - 1}-${mm}-01`,
+        bookedDays: priorBooked,
+        ttvPence: priorBooked * Math.round(pattern.dayRatePence * 0.92)
+      });
+
+      if (monthIndex > currentMonth) return;
+      const bookedThisYear = monthIndex === currentMonth ? Math.min(booked, dayOfMonth) : booked;
+      rows.push({
+        propertyId: pattern.propertyId,
+        month: `${year}-${mm}-01`,
+        bookedDays: bookedThisYear,
+        ttvPence: bookedThisYear * pattern.dayRatePence
+      });
+    });
+  }
+  return rows;
+}
+
 const VENDOR_SEEDS: VendorRow[] = [
   { id: "v1", name: "Soho Signage Co", trade: "signage", isApproved: true, totalJobs: 24, totalSpendPence: 1860000, qualityRating: 4.7 },
   { id: "v2", name: "Mayfair Blinds", trade: "blinds", isApproved: true, totalJobs: 11, totalSpendPence: 740000, qualityRating: 4.4 },
@@ -212,6 +268,12 @@ export function generateMockAnalytics(now: Date = new Date()): AnalyticsData {
     windowStart
   );
 
+  const occupancyHistory = buildOccupancyHistory(
+    buildMockSpaceMetrics(windowStart),
+    PROPERTY_NAME,
+    windowStart
+  );
+
   return {
     metrics,
     funnel,
@@ -222,6 +284,7 @@ export function generateMockAnalytics(now: Date = new Date()): AnalyticsData {
     vendors,
     properties,
     deposits,
+    occupancyHistory,
     windowStart,
     source: "mock",
     generatedAt: now.toISOString()

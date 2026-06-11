@@ -1165,6 +1165,57 @@ export type Database = {
           },
         ]
       }
+      space_metrics: {
+        Row: {
+          booked_days: number
+          created_at: string
+          id: string
+          month: string
+          org_id: string
+          property_id: string
+          source: string
+          ttv_pence: number
+          updated_at: string
+        }
+        Insert: {
+          booked_days?: number
+          created_at?: string
+          id?: string
+          month: string
+          org_id: string
+          property_id: string
+          source?: string
+          ttv_pence?: number
+          updated_at?: string
+        }
+        Update: {
+          booked_days?: number
+          created_at?: string
+          id?: string
+          month?: string
+          org_id?: string
+          property_id?: string
+          source?: string
+          ttv_pence?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "space_metrics_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "space_metrics_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_jobs: {
         Row: {
           actual_amount_pence: number | null

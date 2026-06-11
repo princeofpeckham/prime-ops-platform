@@ -97,6 +97,29 @@ export type DepositsAnalytics = {
   totalDeductedThisYearPence: number;  // deductions on deposits checked out this calendar year
 };
 
+// One space's year-to-date history from the imported space_metrics table.
+export type OccupancyHistorySpace = {
+  propertyId: string;
+  name: string;
+  currentYearBookedDays: number;
+  currentYearTtvPence: number;
+  currentYearOccupancyPct: number;   // booked days / days elapsed this year, capped at 100
+  avgDayRatePence: number;           // TTV / booked days, 0 when nothing booked
+  priorYearTtvPence: number;
+};
+
+// One month of the current year, summed across all spaces.
+export type OccupancyHistoryMonth = {
+  month: string;                     // "YYYY-MM"
+  ttvPence: number;
+  bookedDays: number;
+};
+
+export type OccupancyHistory = {
+  bySpace: OccupancyHistorySpace[];  // only spaces that have history rows
+  monthly: OccupancyHistoryMonth[];  // always Jan..Dec of the current year
+};
+
 export type AnalyticsData = {
   metrics: HeadlineMetrics;
   funnel: FunnelStageStat[];
@@ -107,6 +130,7 @@ export type AnalyticsData = {
   vendors: VendorRow[];
   properties: PropertyRow[];
   deposits: DepositsAnalytics;
+  occupancyHistory: OccupancyHistory;
   windowStart: string;         // ISO date, first day of the 30 day occupancy window
   source: "supabase" | "mock";
   generatedAt: string;

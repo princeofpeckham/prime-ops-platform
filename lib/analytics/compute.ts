@@ -8,6 +8,9 @@ import type {
   DepositStatus,
   EnquiryStage,
   FunnelStageStat,
+  OccupancyHistory,
+  OccupancyHistoryMonth,
+  OccupancyHistorySpace,
   OccupancyRow,
   PropertyTier
 } from "./types";
@@ -159,4 +162,75 @@ export function buildDepositsAnalytics(
     .reduce((sum, d) => sum + deductionPence(d), 0);
 
   return { bySpace, totalDeductedThisYearPence };
+}
+
+// Minimal space_metrics shape for the occupancy history section, so callers
+// can pass either live rows or mock rows without coupling to the table type.
+export type SpaceMetricForHistory = {
+  propertyId: string;
+  month: string;        // ISO YYYY-MM-DD, first of month
+  bookedDays: number;
+  ttvPence: number;
+};
+
+// Days elapsed this calendar year, inclusive of today. UTC maths on the ISO
+// parts, same approach as addDaysIso, so there is no timezone drift.
+function daysElapsedThisYear(todayIso: string): number {
+  const [y, m, d] = todayIso.split("-").map(Number) as [number, number, number];
+  const elapsedMs = Date.UTC(y, m - 1, d) - Date.UTC(y, 0, 1);
+  return Math.round(elapsedMs / 86_400_000) + 1;
+}
+
+// Year-to-date history from the imported space_metrics rows. Per space:
+// booked days, TTV, occupancy (booked days over days elapsed this year,
+// capped at 100), average day rate and last year's TTV for comparison. Plus
+// a monthly TTV/booked-days series for the current year across all spaces,
+// always Jan..Dec with missing months as zero. Only spaces that actually have
+// rows appear; the current year is taken from todayIso.
+export function buildOccupancyHistory(
+  rows: SpaceMetricForHistory[],
+  propertyNames: Map<string, string>,
+  todayIso: string
+): OccupancyHistory {
+  const currentYear = todayIso.slice(0, 4);
+  const priorYear = String(Number(currentYear) - 1);
+  const elapsedDays = Math.max(1, daysElapsedThisYear(todayIso));
+
+  const propertyIds = [...new Set(rows.map((r) => r.propertyId))];
+  const bySpace: OccupancyHistorySpace[] = propertyIds
+    .map((propertyId) => {
+      const propRows = rows.filter((r) => r.propertyId === propertyId);
+      const thisYearRows = propRows.filter((r) => r.month.slice(0, 4) === currentYear);
+      const bookedDays = thisYearRows.reduce((sum, r) => sum + r.bookedDays, 0);
+      const ttvPence = thisYearRows.reduce((sum, r) => sum + r.ttvPence, 0);
+      const priorYearTtvPence = propRows
+        .filter((r) => r.month.slice(0, 4) === priorYear)
+        .reduce((sum, r) => sum + r.ttvPence, 0);
+      return {
+        propertyId,
+        name: propertyNames.get(propertyId) ?? "Unknown space",
+        currentYearBookedDays: bookedDays,
+        currentYearTtvPence: ttvPence,
+        currentYearOccupancyPct: Math.min(100, Math.round((bookedDays / elapsedDays) * 100)),
+        avgDayRatePence: bookedDays === 0 ? 0 : Math.round(ttvPence / bookedDays),
+        priorYearTtvPence
+      };
+    })
+    .sort(
+      (a, b) =>
+        b.currentYearTtvPence - a.currentYearTtvPence || a.name.localeCompare(b.name)
+    );
+
+  const monthly: OccupancyHistoryMonth[] = [];
+  for (let m = 1; m <= 12; m++) {
+    const month = `${currentYear}-${String(m).padStart(2, "0")}`;
+    const monthRows = rows.filter((r) => r.month.slice(0, 7) === month);
+    monthly.push({
+      month,
+      ttvPence: monthRows.reduce((sum, r) => sum + r.ttvPence, 0),
+      bookedDays: monthRows.reduce((sum, r) => sum + r.bookedDays, 0)
+    });
+  }
+
+  return { bySpace, monthly };
 }
