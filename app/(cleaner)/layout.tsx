@@ -17,13 +17,13 @@ export default async function CleanerLayout({ children }: { children: React.Reac
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-prime-paper">
-      <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white">
+    <div className="flex min-h-screen flex-col bg-cream-100">
+      <header className="sticky top-0 z-20 bg-pine-800 text-pine-100">
         <div className="mx-auto flex w-full max-w-screen-sm items-center justify-between gap-3 px-4 py-3">
-          <Link href="/cleaner/jobs" className="text-sm font-semibold tracking-tight text-prime-ink">
+          <Link href="/cleaner/jobs" className="text-sm font-semibold tracking-tight text-white">
             PRIME Cleaner
           </Link>
-          <div className="flex items-center gap-3 text-xs text-neutral-500">
+          <div className="flex items-center gap-3 text-xs text-pine-300">
             {previewMode ? (
               <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-800">
                 Preview
@@ -31,7 +31,7 @@ export default async function CleanerLayout({ children }: { children: React.Reac
             ) : null}
             {email ? <span className="hidden truncate sm:inline">{email}</span> : null}
             <form action={signOut}>
-              <button type="submit" className="text-xs text-neutral-600 hover:text-neutral-900">
+              <button type="submit" className="text-xs text-pine-300 hover:text-white">
                 Sign out
               </button>
             </form>
@@ -40,13 +40,13 @@ export default async function CleanerLayout({ children }: { children: React.Reac
         <nav className="mx-auto flex w-full max-w-screen-sm items-center gap-1 px-4 pb-2 text-sm">
           <Link
             href="/cleaner/jobs"
-            className="rounded-md px-3 py-1.5 font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900"
+            className="rounded-lg px-3 py-1.5 font-medium text-pine-300 hover:bg-pine-700 hover:text-white"
           >
             Jobs
           </Link>
           <Link
             href="/cleaner/history"
-            className="rounded-md px-3 py-1.5 font-medium text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900"
+            className="rounded-lg px-3 py-1.5 font-medium text-pine-300 hover:bg-pine-700 hover:text-white"
           >
             History
           </Link>

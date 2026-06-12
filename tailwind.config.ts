@@ -9,6 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        pine: {
+          900: "#16291D",
+          800: "#1E3A2B",
+          700: "#27483A",
+          600: "#33523F",
+          300: "#9DB4A4",
+          100: "#E8EFE8"
+        },
+        cream: {
+          50: "#FAFAF5",
+          100: "#F4F4EC",
+          200: "#E9E9DF"
+        },
         prime: {
           ink: "#0b0b0b",
           paper: "#fafaf7",

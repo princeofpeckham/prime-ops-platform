@@ -9,7 +9,8 @@ import type {
   CalendarData,
   CalendarEvent,
   MaintenanceItem,
-  PropertyOption
+  PropertyOption,
+  Tenancy
 } from "./types";
 
 // Trim "08:45:00" -> "08:45". Leaves windows like "17:00 onwards" untouched.
@@ -28,8 +29,15 @@ export async function fetchCalendarFromSupabase(now: Date = new Date()): Promise
   const windowStart = addDaysIso(today, -45);
   const windowEndExclusive = addDaysIso(today, 90);
 
-  const [propsRes, shiftsRes, cleansRes, maintenanceRes] = await Promise.all([
-    supabase.from("properties").select("id,name").order("name"),
+  const [propsRes, bookingsRes, shiftsRes, cleansRes, maintenanceRes] = await Promise.all([
+    supabase.from("properties").select("id,name,tier").order("name"),
+    // Bookings overlapping the window become continuous tenancy bars.
+    supabase
+      .from("bookings")
+      .select("*")
+      .neq("status", "cancelled")
+      .gte("check_out_date", windowStart)
+      .lt("check_in_date", windowEndExclusive),
     supabase
       .from("shifts")
       .select("*")
@@ -45,12 +53,27 @@ export async function fetchCalendarFromSupabase(now: Date = new Date()): Promise
     supabase.from("maintenance_jobs").select("*").order("created_at", { ascending: false })
   ]);
 
-  const properties: PropertyOption[] = (propsRes.data ?? []).map((p) => ({ id: p.id, name: p.name }));
+  const properties: PropertyOption[] = (propsRes.data ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    tier: p.tier
+  }));
+  const bookings: Tables<"bookings">[] = bookingsRes.data ?? [];
   const shifts: Tables<"shifts">[] = shiftsRes.data ?? [];
   const cleans: Tables<"cleaning_jobs">[] = cleansRes.data ?? [];
   const maintenanceRows: Tables<"maintenance_jobs">[] = maintenanceRes.data ?? [];
 
   const propertyNameById = new Map(properties.map((p) => [p.id, p.name]));
+
+  // Bookings span their entire occupied range, check-in to check-out inclusive.
+  const tenancies: Tenancy[] = bookings.map((b) => ({
+    bookingId: b.id,
+    propertyId: b.property_id,
+    propertyName: propertyNameById.get(b.property_id) ?? null,
+    brandName: b.brand_name,
+    startDate: b.check_in_date,
+    endDate: b.check_out_date
+  }));
 
   const events: CalendarEvent[] = [];
 
@@ -120,6 +143,7 @@ export async function fetchCalendarFromSupabase(now: Date = new Date()): Promise
 
   return {
     events,
+    tenancies,
     maintenance,
     properties,
     source: "supabase",

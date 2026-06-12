@@ -3,8 +3,25 @@
 import { useCallback, useEffect, useRef } from "react";
 import clsx from "clsx";
 import { isoShortDow, isoShortLabel } from "@/lib/utils";
-import type { CalendarEvent } from "@/lib/calendar/types";
+import type { CalendarEvent, Tenancy } from "@/lib/calendar/types";
+import type { PropertyColour } from "./colours";
+import { propertyColour } from "./colours";
 import { KIND_LABEL, KIND_ORDER, eventChip } from "./vocabulary";
+
+function TenancyRow({ tenancy, colour }: { tenancy: Tenancy; colour: PropertyColour }) {
+  return (
+    <div className="flex items-start gap-2.5 rounded-md border border-neutral-100 bg-neutral-50 px-3 py-2">
+      <span className={clsx("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", colour.dot)} />
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <span className="truncate text-xs font-semibold text-neutral-800">{tenancy.brandName}</span>
+        <span className="truncate text-[11px] text-neutral-500">
+          {tenancy.propertyName ?? "No property"}, {isoShortLabel(tenancy.startDate)} to{" "}
+          {isoShortLabel(tenancy.endDate)}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 function EventRow({ ev }: { ev: CalendarEvent }) {
   return (
@@ -32,10 +49,14 @@ function EventRow({ ev }: { ev: CalendarEvent }) {
 export function DayDrawer({
   dateIso,
   events,
+  tenancies,
+  colours,
   onClose
 }: {
   dateIso: string | null;
   events: CalendarEvent[];
+  tenancies: Tenancy[];
+  colours: Map<string, PropertyColour>;
   onClose: () => void;
 }) {
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -75,7 +96,8 @@ export function DayDrawer({
               {isoShortDow(dateIso)} {isoShortLabel(dateIso)}
             </h2>
             <p className="text-sm text-neutral-500">
-              {events.length} event{events.length === 1 ? "" : "s"} across all properties
+              {tenancies.length} tenanc{tenancies.length === 1 ? "y" : "ies"},{" "}
+              {events.length} event{events.length === 1 ? "" : "s"} across visible properties
             </p>
           </div>
           <button
@@ -91,7 +113,23 @@ export function DayDrawer({
         </div>
 
         <div className="flex flex-col gap-5 px-5 py-4">
-          {grouped.length === 0 ? (
+          {tenancies.length > 0 && (
+            <section>
+              <h3 className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-neutral-500">
+                Tenancies ({tenancies.length})
+              </h3>
+              <div className="flex flex-col gap-2">
+                {tenancies.map((t) => (
+                  <TenancyRow
+                    key={t.bookingId}
+                    tenancy={t}
+                    colour={propertyColour(colours, t.propertyId)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          {grouped.length === 0 && tenancies.length === 0 ? (
             <p className="text-xs italic text-neutral-400">Nothing scheduled for this day.</p>
           ) : (
             grouped.map((g) => (

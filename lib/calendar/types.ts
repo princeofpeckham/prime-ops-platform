@@ -12,6 +12,7 @@ export type CalendarEventKind =
 export type MaintenanceStatus = Enums<"maintenance_status">;
 export type TradeType = Enums<"trade_type">;
 export type CleaningJobType = Enums<"cleaning_job_type">;
+export type PropertyTier = Enums<"property_tier">;
 
 // A single thing happening on a given day at a property. Time is optional:
 // shifts carry a start time, cleans a window, maintenance usually none.
@@ -42,7 +43,18 @@ export type MaintenanceItem = {
   createdAt: string;
 };
 
-export type PropertyOption = { id: string; name: string };
+export type PropertyOption = { id: string; name: string; tier: PropertyTier | null };
+
+// A booking rendered as a continuous bar across every occupied day,
+// check-in to check-out inclusive. Cancelled bookings are excluded upstream.
+export type Tenancy = {
+  bookingId: string;
+  propertyId: string;
+  propertyName: string | null;
+  brandName: string;
+  startDate: string; // ISO YYYY-MM-DD (check-in)
+  endDate: string;   // ISO YYYY-MM-DD (check-out, inclusive)
+};
 
 // Counts for the summary strip, scoped to the visible month.
 export type MonthSummary = {
@@ -55,6 +67,7 @@ export type MonthSummary = {
 
 export type CalendarData = {
   events: CalendarEvent[];
+  tenancies: Tenancy[];
   maintenance: MaintenanceItem[];
   properties: PropertyOption[];
   source: "supabase" | "mock";

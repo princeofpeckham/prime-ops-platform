@@ -8,15 +8,16 @@ import type {
   CalendarData,
   CalendarEvent,
   MaintenanceItem,
-  PropertyOption
+  PropertyOption,
+  Tenancy
 } from "./types";
 
 const DEMO_PROPERTIES: PropertyOption[] = [
-  { id: "p-greek-st", name: "Greek St" },
-  { id: "p-darblay", name: "D'arblay" },
-  { id: "p-hay-hill", name: "Hay Hill" },
-  { id: "p-paddington", name: "Paddington" },
-  { id: "p-eastcastle", name: "Eastcastle" }
+  { id: "p-greek-st", name: "Greek St", tier: "prime" },
+  { id: "p-darblay", name: "D'arblay", tier: "prime" },
+  { id: "p-hay-hill", name: "Hay Hill", tier: "prime" },
+  { id: "p-paddington", name: "Paddington", tier: "pro" },
+  { id: "p-eastcastle", name: "Eastcastle", tier: "other" }
 ];
 
 const NAME_BY_ID = new Map(DEMO_PROPERTIES.map((p) => [p.id, p.name]));
@@ -72,6 +73,28 @@ const EVENT_SEEDS: EventSeed[] = [
   { kind: "viewing", offset: -8, propertyId: "p-hay-hill", title: "Cuyana", time: "12:00" }
 ];
 
+type TenancySeed = {
+  id: string;
+  propertyId: string;
+  brandName: string;
+  startOffset: number; // days from today (check-in)
+  endOffset: number;   // days from today (check-out, inclusive)
+};
+
+// Several multi-day tenancies that overlap in time across different properties,
+// so the month grid demonstrates stacked lanes and the "+N" overflow.
+const TENANCY_SEEDS: TenancySeed[] = [
+  { id: "b-ganni", propertyId: "p-greek-st", brandName: "Ganni", startOffset: -4, endOffset: 6 },
+  { id: "b-skims", propertyId: "p-greek-st", brandName: "Skims", startOffset: 9, endOffset: 20 },
+  { id: "b-lemaire", propertyId: "p-darblay", brandName: "Lemaire", startOffset: -1, endOffset: 13 },
+  { id: "b-aesop", propertyId: "p-darblay", brandName: "Aesop", startOffset: 15, endOffset: 27 },
+  { id: "b-diptyque", propertyId: "p-hay-hill", brandName: "Diptyque", startOffset: -10, endOffset: 2 },
+  { id: "b-polaroid", propertyId: "p-hay-hill", brandName: "Polaroid", startOffset: 8, endOffset: 19 },
+  { id: "b-allbirds", propertyId: "p-paddington", brandName: "Allbirds", startOffset: 4, endOffset: 18 },
+  { id: "b-oatly", propertyId: "p-eastcastle", brandName: "Oatly", startOffset: -15, endOffset: -5 },
+  { id: "b-glossier", propertyId: "p-eastcastle", brandName: "Glossier", startOffset: 16, endOffset: 29 }
+];
+
 type MaintenanceSeed = {
   id: string;
   propertyId: string;
@@ -110,6 +133,15 @@ export function generateMockCalendar(now: Date = new Date()): CalendarData {
     cleanType: s.cleanType ?? null
   }));
 
+  const tenancies: Tenancy[] = TENANCY_SEEDS.map((s) => ({
+    bookingId: s.id,
+    propertyId: s.propertyId,
+    propertyName: NAME_BY_ID.get(s.propertyId) ?? null,
+    brandName: s.brandName,
+    startDate: addDaysIso(todayIso, s.startOffset),
+    endDate: addDaysIso(todayIso, s.endOffset)
+  }));
+
   const maintenance: MaintenanceItem[] = MAINTENANCE_SEEDS.map((s) => ({
     id: s.id,
     propertyId: s.propertyId,
@@ -128,6 +160,7 @@ export function generateMockCalendar(now: Date = new Date()): CalendarData {
 
   return {
     events,
+    tenancies,
     maintenance,
     properties: DEMO_PROPERTIES,
     source: "mock",
